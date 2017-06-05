@@ -1,0 +1,236 @@
+<apex:page controller="CPBuilderController" cache="false" contentType="text/html"
+    showHeader="true" sidebar="true" tabstyle="TRHC__Credentials__c" title="Candidate Presentation" action="{!initiateCPObject}">
+
+    <apex:includeScript value="{!URLFOR($Resource.TRHC__jquery142)}" />
+    <!--apex:includeScript value="{!URLFOR($Resource.ajax_googleapis_com_ajax_libs_jqueryui_1_8_16_jquery_ui_min_js)}" />
+    <script src="{!URLFOR($Resource.TRHC__jquery_maskedinput_1_3_min)}" type="text/javascript"></script>
+    <script src="{!URLFOR($Resource.TRHC__jquery_maskedinput_1_3)}" type="text/javascript"></script>
+    <apex:includeScript value="{!URLFOR($Resource.ajax_googleapis_com_ajax_libs_jqueryui_1_8_16_jquery_ui_css)}" /-->
+
+    <style>
+        .activeTab {background-color: skyblue; text-color:white; background-image:none;font-size:14px;}
+        .inactiveTab { background-color: lightgrey; text-color:black; background-image:none;font-size:14px;}
+        .tablestyleclass{font-size:13px;}
+    </style>
+
+    <script>
+        var j$ = jQuery.noConflict();
+
+        function fixId(myid) {
+            return '#' + myid.replace(new RegExp("(:|\\.)", "g"), '\\\$1');
+        }
+
+        function selectAll(parentId)
+        {
+            j$(":checkbox")
+            alert(parentId);
+            alert(fixId(parentId));
+            alert(j$(fixId(parentId)));
+
+            var parentObject = j$(fixId(parentId));
+            alert(parentObject);
+
+            var checkbox = parentObject.select(':checkbox');
+            alert('checkbox' + checkbox);
+            alert('checkbox' + checkbox.length);
+            // j$.select('#CandidateAttachmentsPageBlockTable').select(':checkbox')
+        }
+    </script>
+    <apex:sectionHeader title="Candidate Profile " subtitle="{!candidate.Name}"/>
+    
+
+    <apex:form >
+        <!--apex:pageBlock title="Candidate Profile : {!candidate.Name}" mode="maindetail"-->
+        <apex:pageBlock mode="maindetail" id="mainblockid">
+            <apex:pageBlockButtons >
+                <!--apex:commandButton action="{!generatePresentation}" value="Generate File" rendered="{!!presentationMode}" reRender="mainblockid" status="StatusID"  oncomplete="window.open('{!previewUrl}','Popup','height=700,width=600,left=10,top=100,scrollbars=yes,toolbar=no,status=no');return false;"/-->
+                 <apex:commandButton action="{!generatePresentation}" value="Generate File" reRender="mainblockid" status="StatusID"  oncomplete="window.open('{!previewUrl}','Document Processing Window','height=700,width=595,left=10,top=100,scrollbars=yes,toolbar=no,status=no');return false;"/>
+                
+                <!--apex:commandButton action="{!previewPresentation}" value="DEVTEST"/-->
+                <apex:commandButton action="{!returnToPrvPage}" value="Cancel"/>
+            </apex:pageBlockButtons>
+            <apex:pagemessages id="msgblkid"/>
+            
+            <apex:tabPanel switchType="client" selectedTab="CandidateAttachments" id="BuilderTabPanel"
+                tabClass="activeTab" inactiveTabClass="inactiveTab" headerSpacing="2px">
+
+                <apex:tab label="Candidate Attachments" name="CandidateAttachments" id="CandidateAttachments">
+                    <apex:pageBlockSection title="Candidate Attachments" columns="1" collapsible="false" >
+                        <!--a href="">Select All</a-->
+                        <apex:pageBlockTable id="CandidateAttachmentsPageBlockTable" value="{!candidateAttachments}" var="att" rendered="{!candidateAttachments.size > 0}" styleClass="tablestyleclass">
+                            <apex:column width="5%">
+                                <apex:facet name="header"><apex:inputcheckbox id="attchkheadid" onclick="selectAllCheckboxes(this,'attChkid')"/></apex:facet>
+                                <apex:inputCheckbox value="{!att.selected}" id="attChkid"/>
+                            </apex:column>
+                            <apex:column >
+                                <apex:facet name="header">File Name</apex:facet>
+                                <apex:outputlink value="/{!att.sobj.id}" target="_blank" style="color:blue;">
+                                    <apex:outputText value="{!att.sobj.Name}"/>
+                                </apex:outputlink>
+                            </apex:column>
+                        </apex:pageBlockTable>
+                    </apex:pageBlockSection>
+                </apex:tab>
+
+                <apex:tab label="License Information" name="LicenseInformation" id="LicenseInformation">
+                    <apex:pageBlockSection title="License Information" columns="1" rendered="{!licenses.size > 0}" collapsible="false">
+                        <apex:pageBlockTable value="{!licenses}" var="license" styleClass="tablestyleclass">
+                            <apex:column width="5%">
+                                 <apex:facet name="header"><apex:inputcheckbox id="licchkheadid" onclick="selectAllCheckboxes(this,'licchkid')"/></apex:facet>
+                                <apex:inputCheckbox value="{!license.selected}" id="licchkid"/>
+                            </apex:column>
+                            <apex:column >
+                                <apex:facet name="header">Details</apex:facet>
+                                <apex:outputlink value="/{!license.sobj.id}" target="_blank" style="color:blue;">
+                                    <apex:outputText value="{!license.sobj.TRHC__State__c} license # {!license.sobj.TRHC__License_Number__c} valid up to {!license.sobj.TRHC__Expiration_Date__c} ({!IF(license.sobj.TRHC__Attachment_ID__c != null, 'Attachment Included', 'No attachment available')})"/>
+                                </apex:outputlink>
+                                </apex:column>
+                        </apex:pageBlockTable>
+                    </apex:pageBlockSection>
+                </apex:tab>
+
+                <apex:tab label="Credentials/Certifications" name="CredentialsCertifications" id="CredentialsCertifications">
+                    <apex:pageBlockSection title="Credentials/Certifications" columns="1" rendered="{!credentials.size > 0}" collapsible="false">
+                        <apex:pageBlockTable value="{!credentials}" var="credential" styleClass="tablestyleclass">
+                            <apex:column width="5%">
+                                 <apex:facet name="header"><apex:inputcheckbox id="credchkheadid" onclick="selectAllCheckboxes(this,'credchkid')"/></apex:facet>
+                                <apex:inputCheckbox value="{!credential.selected}" id="credchkid"/>
+                            </apex:column>
+                            <apex:column >
+                                <apex:facet name="header">Details</apex:facet>
+                                <apex:outputlink value="/{!credential.sobj.id}" target="_blank" style="color:blue;">
+                                    <apex:outputText rendered="{!credential.sobj.TRHC__Expiration_Date__c == null}" value="{!credential.sobj.TRHC__Credential_Master_Name__c} ({!IF(credential.sobj.TRHC__Attachment_ID__c != null, 'Attachment Included', 'No attachment available')})"/>
+                                    <apex:outputText rendered="{!credential.sobj.TRHC__Expiration_Date__c != null}" value="{!credential.sobj.TRHC__Credential_Master_Name__c} Expires {!credential.sobj.TRHC__Expiration_Date__c} ({!IF(credential.sobj.TRHC__Attachment_ID__c != null, 'Attachment Included', 'No attachment available')})"/>
+                                </apex:outputlink>
+                                </apex:column>
+                        </apex:pageBlockTable>
+                    </apex:pageBlockSection>
+                </apex:tab>
+
+                <apex:tab label="Education" name="Education" id="Education">
+                    <apex:pageBlockSection title="Education" columns="1" rendered="{!educationHistory.size > 0}" collapsible="false">
+                        <apex:pageBlockTable value="{!educationHistory}" var="rec" styleClass="tablestyleclass">
+                            <apex:column width="5%">
+                                 <apex:facet name="header"><apex:inputcheckbox id="educhkheadid" onclick="selectAllCheckboxes(this,'educhkid')"/></apex:facet>
+                                <apex:inputCheckbox value="{!rec.selected}" id="educhkid"/>
+                            </apex:column>
+                            <apex:column >
+                                <apex:facet name="header">Details</apex:facet>
+                                <apex:outputlink value="/{!rec.sobj.id}" target="_blank" style="color:blue;">
+                                <apex:outputText value="{!rec.sobj.TRHC__DegreeDate__c} - {!rec.sobj.TRHC__DegreeName__c}, {!rec.sobj.TRHC__SchoolName__c}"/>
+                                </apex:outputlink>
+                                </apex:column>
+                        </apex:pageBlockTable>
+                    </apex:pageBlockSection>
+                </apex:tab>
+
+                <apex:tab label="Employment History" name="EmploymentHistory" id="EmploymentHistory">
+                    <apex:pageBlockSection title="Employment History" columns="1" rendered="{!employmentHistory.size > 0}" collapsible="false">
+                        <apex:pageBlockTable value="{!employmentHistory}" var="rec" styleClass="tablestyleclass">
+                            <apex:column width="5%">
+                                 <apex:facet name="header"><apex:inputcheckbox id="empchkheadid" onclick="selectAllCheckboxes(this,'empchkid')"/></apex:facet>
+                                <apex:inputCheckbox value="{!rec.selected}" id="empchkid"/>
+                            </apex:column>
+                            <apex:column >
+                                <apex:facet name="header">Details</apex:facet>
+                                <apex:outputlink value="/{!rec.sobj.id}" target="_blank" style="color:blue;">
+                                    <apex:outputText value="{!rec.sobj.TRHC__EmployerOrgName__c} {!rec.sobj.TRHC__Start_Date__c} - {!rec.sobj.TRHC__End_Date__c}"/>
+                                </apex:outputlink>
+                                </apex:column>
+                        </apex:pageBlockTable>
+                    </apex:pageBlockSection>
+                </apex:tab>
+                <apex:tab label="Skills Checklist" name="SkillsChecklist" id="SkillsChecklist">
+                    <apex:pageBlockSection title="Skills Checklist" columns="1" rendered="{!skillchecklists.size > 0}" collapsible="false">
+                        <apex:pageBlockTable value="{!skillchecklists}" var="rec" styleClass="tablestyleclass">
+                            <apex:column width="5%">
+                                 <apex:facet name="header"><apex:inputcheckbox id="scschkheadid" onclick="selectAllCheckboxes(this,'scchkid')"/></apex:facet>
+                                <apex:inputCheckbox value="{!rec.selected}" id="scchkid"/>
+                            </apex:column>
+                            <apex:column >
+                                <apex:facet name="header">Details</apex:facet>
+                                <apex:outputlink value="/{!rec.sobj.id}" target="_blank" style="color:blue;">
+                                    <apex:outputText value="{!rec.sobj.TRHC__Skill_Checklist_Name__c}({!IF(rec.sobj.TRHC__Results_URL__c != null, 'Attachment Included', 'No attachment available')})"/>
+                                </apex:outputlink>
+                                </apex:column>
+                        </apex:pageBlockTable>
+                    </apex:pageBlockSection>
+                </apex:tab>
+                <apex:tab label="Assesments" name="Assesment" id="assesment">
+                    <apex:pageBlockSection title="Assesments" columns="1" rendered="{!assesments.size > 0}" collapsible="false">
+                        <apex:pageBlockTable value="{!assesments}" var="rec" styleClass="tablestyleclass">
+                            <apex:column width="5%">
+                                 <apex:facet name="header"><apex:inputcheckbox id="assechkheadid" onclick="selectAllCheckboxes(this,'aschkid')"/></apex:facet>
+                                <apex:inputCheckbox value="{!rec.selected}" id="aschkid"/>
+                            </apex:column>
+                            <apex:column >
+                                <apex:facet name="header">Details</apex:facet>
+                                <apex:outputlink value="/{!rec.sobj.id}" target="_blank" style="color:blue;">
+                                    <apex:outputText value="{!rec.sobj.TRHC__Assessment_Name__c}({!IF(rec.sobj.TRHC__Results_URL__c != null, 'Attachment Included', 'No attachment available')})"/>
+                                </apex:outputlink>
+                                </apex:column>
+                        </apex:pageBlockTable>
+                    </apex:pageBlockSection>
+                </apex:tab>
+                
+                <apex:tab label="References" name="Reference" id="reference">
+                    <apex:pageBlockSection title="References" columns="1" rendered="{!references.size > 0}" collapsible="false">
+                        <apex:pageBlockTable value="{!references}" var="rec" styleClass="tablestyleclass">
+                            <apex:column width="5%">
+                                 <apex:facet name="header"><apex:inputcheckbox id="refschkheadid" onclick="selectAllCheckboxes(this,'refchkid')"/></apex:facet>
+                                <apex:inputCheckbox value="{!rec.selected}" id="refchkid"/>
+                            </apex:column>
+                            <apex:column >
+                                <apex:facet name="header">Details</apex:facet>
+                                <apex:outputlink value="/{!rec.sobj.id}" target="_blank" style="color:blue;">
+                                    <apex:outputText value="{!rec.sobj.TRHC__Organization_Institution__c},{!rec.sobj.TRHC__Reference_Is_Was_My__c},{!rec.sobj.TRHC__Reference_Date__c}({!IF(rec.attachment != null, 'Attachment Included', 'No attachment available')})"/>
+                                </apex:outputlink>
+                                </apex:column>
+                        </apex:pageBlockTable>
+                    </apex:pageBlockSection>
+                </apex:tab>
+                
+                <apex:tab label="Background Checks" name="BackgroundCheck" id="backgroundcheck">
+                    <apex:pageBlockSection title="Background Checks" columns="1" rendered="{!backgroundchecks.size > 0}" collapsible="false">
+                        <apex:pageBlockTable value="{!backgroundchecks}" var="rec" styleClass="tablestyleclass">
+                            <apex:column width="5%">
+                                 <apex:facet name="header"><apex:inputcheckbox id="bgschkheadid" onclick="selectAllCheckboxes(this,'bgchkid')"/></apex:facet>
+                                <apex:inputCheckbox value="{!rec.selected}" id="bgchkid"/>
+                            </apex:column>
+                            <apex:column >
+                                <apex:facet name="header">Details</apex:facet>
+                                <apex:outputlink value="/{!rec.sobj.id}" target="_blank" style="color:blue;">
+                                    <apex:outputText value="{!rec.sobj.Name},{!rec.sobj.TRHC__Screenings__c},{!rec.sobj.TRHC__Order_Status__c}({!IF(rec.attachment != null, 'Attachment Included', 'No attachment available')})"/>
+                                </apex:outputlink>
+                                </apex:column>
+                        </apex:pageBlockTable>
+                    </apex:pageBlockSection>
+                </apex:tab>
+
+            </apex:tabPanel> 
+            
+            <apex:actionStatus id="StatusID">
+                <apex:facet name="start">
+                    <div class="waitingSearchDiv" id="el_loading" style="background-color: #fbfbfb; height:100%;opacity:0.65;width:100%;">
+                        <div class="waitingHolder" style="top: 100px; width: 91px;">
+                            <img class="waitingImage" src="/img/loading.gif" title="Please Wait..." />
+                            <span class="waitingDescription">Processing...</span>
+                        </div>
+                    </div>
+                </apex:facet>
+            </apex:actionstatus>
+        </apex:pageBlock>
+    </apex:form>
+    
+    <script type="text/javascript">
+        function selectAllCheckboxes(obj,receivedInputID){
+            var inputCheckBox = document.getElementsByTagName("input");                  
+            for(var i=0; i<inputCheckBox.length; i++){          
+                if(inputCheckBox[i].id.indexOf(receivedInputID)!=-1){                                     
+                    inputCheckBox[i].checked = obj.checked;
+                }
+            }
+        }    
+    
+    </script>
+</apex:page>
