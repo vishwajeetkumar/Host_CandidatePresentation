@@ -15,8 +15,9 @@
                 {
                 font-size:1.8em;
                 font-weight:bold;
-                border-width:1px;
-                border-style:none none solid none
+                border-width:3px;
+                border-style:none none solid none;
+                border-color:#0077a8;
                 }
                 
                 #candidateName
@@ -29,9 +30,16 @@
                 {
                 font-size:1.2em;
                 font-weight:bold;
-                border-width:1px;
-                border-style:none none solid none
+                border-width:2px;
+                border-style:none none solid none;
+                border-color:#0077a8;
                 }
+                
+                table {
+                      border-collapse: collapse;
+                      table-layout:fixed;    
+                width:100%;
+                }  
                 
                 td.label
                 {
@@ -39,144 +47,197 @@
                 font-weight:bold;
                 background-color:#E8E8E8;        	
                 }
+                
+                th.label
+                {
+                width:30px;                
+                font-weight:bold;
+                border-width:1.5px;
+                border-style:none none solid none; 
+                border-color:#C0C0C0;
+                }               
+                
+                .tablerow
+                {   
+                width:100%!;
+                font-weight:normal;
+                border-width:1.5px;
+                border-style:none none solid none; 
+                border-color:#C0C0C0;
+                overflow: hidden;
+                display: inline-block;
+                white-space: nowrap;
+                text-align: center; 
+    			vertical-align: middle;
+                }
+                
+                 td.rowStyle1{
+                    border-width:1.5px;
+                    border-style:none none solid none; 
+                    border-color:#C0C0C0;
+                }
+                
+                td.rowEmpStyle1{
+                    border-width:1.5px;
+                    border-style:none none solid none; 
+                    border-color:#C0C0C0;
+                	width:30%;
+                }
+                
+                td.rowEmpStyle2{
+                    border-width:1.5px;
+                    border-style:none none solid none; 
+                    border-color:#C0C0C0;
+                	width:70%;
+                }
+
             </style>
         </head>
         
         <body>
             <apex:form >
                 <apex:pageBlock mode="maindetail"> 
+                    <apex:image style="margin-left:30%" value="{!$Resource.CandidatePresentationProfieLogo}"/><!--url="/servlet/servlet.FileDownload?file=0157A000000A917" width="300" height="150"/-->
                     <h1>Candidate Profile</h1>                    
                     <apex:outputpanel rendered="{!contactFieldList != null}">  
-                        <table id="contcttablecid" width="100%">
+                       <table id="contcttablecid">
                             <apex:repeat var="v_field" value="{!contactFieldList}">
                                 <tr>
-                                    <td class="label">{!$ObjectType.Contact.fields[v_field].label} </td>
-                                    <!--td>{!candidate[v_field]}</td-->                                    
-                                    <td>
-                                        <apex:outputfield value="{!candidate[v_field]}"/>                                    	  
+                                    <td class="rowStyle1"><b>{!$ObjectType.Contact.fields[v_field].label}</b></td>                                                                        
+                                    <td class="rowStyle1">
+                                        <apex:outputfield styleClass="tablerow" value="{!candidate[v_field]}"/>                                    	  
                                     </td>
                                 </tr>
                             </apex:repeat>                  
                         </table>
+                        <br/>
                     </apex:outputpanel>         
                     
                     <apex:outputPanel rendered="{!jobFieldList != null}">		
-                        <h2>Job Information</h2>
-                        
-                        <table id="jobtablecid" width="100%">
-                            <apex:repeat var="v_field" value="{!jobFieldList}">
-                                <tr>
-                                    <apex:variable id="varid" value="{!$ObjectType.TRHC__Job__c.fields[v_field].label}" var="FieldLabel"/>
-                                    <td class="label">{!$ObjectType.TRHC__Job__c.fields[v_field].label} </td>
-                                    <!--td>{!job[v_field]}</td-->
-                                    <td>
-                                        <apex:outputfield value="{!job[v_field]}"/>                                    	  
-                                    </td>
+                        <h2>Job Information</h2>                        
+                        <table id="jobtablecid">
+                            <tr>
+                            	<apex:repeat var="v_field" value="{!jobFieldList}">
+                                	<th class="label">{!$ObjectType.TRHC__Job__c.fields[v_field].label}</th>
+                                </apex:repeat>  
+                            </tr>                            
+                            
+                                <tr>   
+                                    <apex:repeat var="v_field" value="{!jobFieldList}">
+                                        <td class="rowStyle1">
+                                            <apex:outputfield styleClass="tablerow" value="{!job[v_field]}"/>                                    	  
+                                        </td>
+                                    </apex:repeat> 
                                 </tr>
-                            </apex:repeat>                  
+                                             
                         </table>
+                        <br/>
                     </apex:outputPanel> 
                     
                     <apex:outputPanel rendered="{!licenses.size > 0}">
                         <h2>License Information</h2>
-                        <table style="width:100%">
-                            <apex:repeat value="{!licenses}" var="license">
-                                <table id="lictablecid" width="100%">
-                                    <apex:repeat var="v_field" value="{!licFieldList}">
+                        <table id="lictablecid"> 
+                        	<tr>
+                            	<apex:repeat var="v_field" value="{!licFieldList}">
+                                	<th class="label">{!$ObjectType.TRHC__Credentials_Additional_Information__c.fields[v_field].label}</th>
+                                </apex:repeat>  
+                            </tr>
+                            <apex:repeat value="{!licenses}" var="license">                               
                                         <tr>
-                                            <td class="label">{!$ObjectType.TRHC__Credentials_Additional_Information__c.fields[v_field].label} </td>
-                                            <!--td>{!license[v_field]}</td-->
-                                            <td>
-                                                <apex:outputfield value="{!license[v_field]}"/>                                                 
+                                          <apex:repeat var="v_field" value="{!licFieldList}">                                           
+                                            <td class="rowStyle1">
+                                                <apex:outputfield styleClass="tablerow" value="{!license[v_field]}"/>                                                 
                                             </td>
-                                        </tr>
-                                    </apex:repeat>                  
-                                </table>
-                                <p/>
+                                            </apex:repeat>
+                                        </tr>                  
                             </apex:repeat>
                         </table>
+                        <br/>
                     </apex:outputPanel>
                     
                     <apex:outputPanel rendered="{!credentials.size > 0}">
                         <h2>Credentials/Certifications</h2>
-                        <table style="width:100%">
-                            <apex:repeat value="{!credentials}" var="credential">
-                                <table id="certtablecid" width="100%">
-                                    <apex:repeat var="v_field" value="{!credFieldList}">
+                        <table id="certtablecid">
+                        	<tr>
+                            	<apex:repeat var="v_field" value="{!credFieldList}">
+                                	<th class="label">{!$ObjectType.TRHC__Credentials__c.fields[v_field].label} </th>
+                                </apex:repeat>  
+                            </tr>
+                            <apex:repeat value="{!credentials}" var="credential">                                                                                                     
                                         <tr>
-                                            <td class="label">{!$ObjectType.TRHC__Credentials__c.fields[v_field].label} </td>                                           
-                                            <!--td> {!credential[v_field]}</td-->  
-                                            <td>
-                                                <apex:outputfield value="{!credential[v_field]}"/>                                                 
+                                          <apex:repeat var="v_field" value="{!credFieldList}">                                             
+                                            <td class="rowStyle1">
+                                                <apex:outputfield styleClass="tablerow" value="{!credential[v_field]}"/>                                                 
                                           	</td>
-                                        </tr>
-                                    </apex:repeat>                  
-                                </table>
-                                <p/>                                
+                                            </apex:repeat>  
+                                        </tr>                                                 
                             </apex:repeat>
                         </table>
+                        <br/>
                     </apex:outputPanel>
                     
                     <apex:outputPanel rendered="{!educationHistory.size > 0}">
-                        <h2>Education</h2>
-                        <table id="EduID" width="100%">           
-                            <apex:repeat value="{!educationHistory}" var="rec">
-                                <table id="edutablecid" width="100%">
-                                    <apex:repeat var="v_field" value="{!eduFieldList}">
-                                        <tr>
-                                            <td class="label">{!$ObjectType.TRHC__Educational_History__c.fields[v_field].label} </td>
-                                            <!--td>{!rec[v_field]}</td-->
-                                            
-                                            <td>
-                                                <apex:outputfield value="{!rec[v_field]}"/>                                                  
-                                            </td>
-                                        </tr>
-                                    </apex:repeat>                  
-                                </table>
-                                <p/>                               
+                        <h2>Educational Background</h2>
+                        <table id="EduID">
+                            <tr>
+                            	<apex:repeat var="v_field" value="{!eduFieldList}">
+                               		<th class="label">{!$ObjectType.TRHC__Educational_History__c.fields[v_field].label}</th>
+                                </apex:repeat>  
+                           	</tr>
+                            <apex:repeat value="{!educationHistory}" var="rec">                               
+                                    <tr>
+                                        <apex:repeat var="v_field" value="{!eduFieldList}"> 
+                                            <td class="rowStyle1">
+                                                <apex:outputfield styleClass="tablerow" value="{!rec[v_field]}"/>                                                  
+                                            </td>                                            
+                                        </apex:repeat>  
+                                    </tr>                                                                                       
                             </apex:repeat> 
-                        </table>
+                        </table>   
+                        <br/>
                     </apex:outputPanel>
+                    
+                    <apex:outputPanel rendered="{!references.size > 0}">
+                        <h2>References</h2>
+                        <table id="RefID" style="tableStyle" cellpadding="0" cellspacing="0"> 
+                            <tr>
+                            	<apex:repeat var="v_field" value="{!refFieldList}">
+                                	<th class="label">{!$ObjectType.TRHC__References__c.fields[v_field].label} </th>
+                                </apex:repeat>  
+                            </tr>
+                            <apex:repeat value="{!references}" var="rec">
+                                 <tr>
+                                        <apex:repeat var="v_field" value="{!refFieldList}"> 
+                                            <td class="rowStyle1">
+                                                <apex:outputfield styleClass="tablerow" value="{!rec[v_field]}"/>                                                  
+                                            </td>                                            
+                                        </apex:repeat>  
+                                    </tr>                                 
+                            </apex:repeat>
+                            <br/>
+                        </table>
+                    </apex:outputPanel> 
                     
                     <apex:outputPanel rendered="{!employmentHistory.size > 0}">
                         <h2>Employment History</h2>
                         <table id="EmpID" style="tableStyle" cellpadding="0" cellspacing="0">           
                             <apex:repeat value="{!employmentHistory}" var="rec">
-                                <table id="emptablecid" width="100%">
+                                <table id="emptablecid">
                                     <apex:repeat var="v_field" value="{!empFieldList}">
                                         <tr>
-                                            <td class="label">{!$ObjectType.TRHC__Employment_History__c.fields[v_field].label} </td>
-                                            <!--td>{!rec[v_field]}</td-->
-                                            <td>
-                                                <apex:outputfield value="{!rec[v_field]}"/>                                                 
+                                            <td class="rowEmpStyle1"><b>{!$ObjectType.TRHC__Employment_History__c.fields[v_field].label}</b></td>
+                                            <td class="rowEmpStyle2">
+                                                <apex:outputfield styleClass="tablerow" value="{!rec[v_field]}"/>                                                 
                                             </td>
                                         </tr>
                                     </apex:repeat>                  
                                 </table>
-                                <p/>
+                                <br/><br/><br/>                             
                             </apex:repeat> 
                         </table>
-                    </apex:outputPanel>
-                    
-                    <apex:outputPanel rendered="{!references.size > 0}">
-                        <h2>References</h2>
-                        <table id="RefID" style="tableStyle" cellpadding="0" cellspacing="0">           
-                            <apex:repeat value="{!references}" var="rec">
-                                <table id="reftablecid" width="100%">
-                                    <apex:repeat var="v_field" value="{!refFieldList}">
-                                        <tr>
-                                            <td class="label">{!$ObjectType.TRHC__References__c.fields[v_field].label} </td>
-                                            <!--td>{!rec[v_field]}</td-->
-                                            <td>                                               
-                                                <apex:outputfield value="{!rec[v_field]}"/>
-                                            </td>
-                                        </tr>
-                                    </apex:repeat>                  
-                                </table>
-                                <p/>                               
-                            </apex:repeat> 
-                        </table>
+                        <br/>
                     </apex:outputPanel>                    
+                                       
                 </apex:pageBlock>
             </apex:form>
         </body>
